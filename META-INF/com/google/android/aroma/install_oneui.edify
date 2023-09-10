@@ -1,0 +1,92 @@
+﻿###################################################################################################################
+#
+# FORM TEST
+#
+form(
+    "Modification",
+    "Choose a/some mod(s) to apply to ROM",
+    "@install_custom",
+    "mods.prop",
+  #
+  # Type:
+  #  - group              = Group
+  #  - select             = Select Item
+  #  - select.selected    = Selected Select Item
+  #  - check              = Checkbox Item
+  #  - check.checked      = Checked Checkbox Item
+  #  - hide               = Hidden
+  #
+  #-------------+-----------------------[ Selectbox Without Group ]------------------------------#
+  # PROP ID     | TITLE            |  SUBTITLE                                   |    Type       #
+  #-------------+--------+-------------------------------------------------------+---------------#
+    "sound",     "Sound",             "",                                              "group",
+      "1",     "Mono",                "Stock sound config, only main speaker",         "select",
+      "2",     "Stereo",              "Use earpiece as secondary speaker.",            "select",
+      
+    "throttle",     "Throttling",        "",                                           "group",
+      "1",     "Little to 1352",      "Less heat similar performance",                 "select",
+      "2",     "Remove throttle",     "Revert ^option above^",                         "select",
+      
+    "lmk",     "LMK - LowMemoryKiller",        "",                                     "group",
+      "1",     "Light LMK",           "Allow heavy multi-tasking",                     "select",
+      "2",     "Standard LMk",        "Allow UI more responsive",                      "select",
+      
+    "blur",     "UserInterface",        "",                                            "group",
+      "1",     "Enable Live Blur UI",       "Flagship blurs that's realistic and looks good",                      "select",
+      "2",     "Enable Static blur UI",       "Midrange/Low blurs that's you have seen also noticed in stock",     "select",
+      
+    "group6",     "Miscellaneous",        "",                                           "group",
+      "knox",     "Remove Knox apps support",       "Will remove Knox component",       "check",
+      "nfc",      "Remove NFC supports",            "Will remove NFC app",              "check",
+      "brightness",     "Remove extended brightness",       "The display will have lower Brightness than normally",  "check",
+	  "fm",     "Add FM Radio",       "For old people xd",  "check",
+      "bootani",  "AOSP Bootanimation",  "Enables support for AOSP bootanimation zip",    "check" 
+	);
+
+###############################################
+#DEBLOAT MENU
+###############################################
+menubox(
+    "Nuke Engine",
+    "Select your Preferred Debloat",
+    "@nuke",
+    "debloat.prop",
+
+    "NO DEBLOAT",        "Recommended for New Users, Least bugs",                              "@none",
+    "Light Debloat",     "Removes Share, Bixby, Switch, AR, Free, Magnifier, Media control",   "@none",
+    "Moderate Debloat",  "Removes Above all and Dex, Edge Panel, Dual Apps, VoWiFi",           "@none",
+    "Heavy Debloat",     "Removes Above all and Samsung account, Galaxy Store, Smart Suggestions, Routine, Smart View", "@none",
+    "Lain's Debloat",    "Removes Above all but keeps Dex and Samsung Account",                "@none",
+    "Sanchet's Debloat", "Custom debloat list by Sanchet",                                     "@none",
+	"Manual Debloat",    "Will intialize remove_recursive engine. For advanced user only",                "@next"
+);
+
+#Manual
+  if prop("debloat.prop","selected") == "7" then
+    include("debloater.edify");
+  endif;
+
+###############################################
+#CSC
+###############################################
+ini_set("text_next", " ");
+ini_set("icon_next", "@none");
+menubox(
+    "",
+    "<b>Select your Region</b>",
+    "@earth",
+    "csc.prop",
+
+    "OLE",   "Indonesia XID",        "@ido",
+    "ODM",   "South Asia:- INS BKD NPB SLK BKD",         "@ins",
+    "OLM",   "East Asia:- CAM LAO MYM XSA THL XME XSP XTC XXV",         "@vie",
+    "OWO",   "South America:- ARO BVO CHO COO EON GTO MXO PEO TPA UPO UYO ZTA ZTM ZTO ZVV",       "@zto",
+    "OJM",   "Middle East:- ACR AFR ECT ILO MID PAK SRR TUN XSG AFG DKR EGY KSA MWD TKD TUR BTC FWD ILP LYS XFA XFE XFV",        "@tur",
+    "OXM",   "Rest of the world:- 3IE AMO ATL ATO AUT AVF BGL BOG BTB BTE BTU CAC CAU CNX COA COS CPW CRO CYV DBT DCO DRE DTM EUR EUX EUY EVR FTM H3G HTS HUI ITV LUX MAX MBC MBM MEO MET MOB MOT MSR NEE O2C O2U OMN OPV ORO ORS ORX PHE PHN PLS PRT ROM SEB SEE SEK SER SFR SIM SIO SKZ SWC TCL TIM TMH TMS TMZ TOP TPH TPL TRG TSI VD2 VDC VDF VDH VDI VGR VIP VOD XEC XEF XEH XEO XEZ",        "@rus",
+    "Skip CSC",  "Will not change CSC", "@skip"
+);
+
+###############################################
+#CSC
+###############################################
+include("module.edify");

@@ -1,0 +1,36 @@
+﻿###################################################################################################################
+#
+# FORM TEST
+#
+form(
+    "Goodlock Module",
+    "Will install as system app",
+    "@module",
+    "module.prop",
+  #
+  # Type:
+  #  - group              = Group
+  #  - select             = Select Item
+  #  - select.selected    = Selected Select Item
+  #  - check              = Checkbox Item
+  #  - check.checked      = Checked Checkbox Item
+  #  - hide               = Hidden
+  #
+  #-------------+-----------------------[ Selectbox Without Group ]------------------------------#
+  # PROP ID     | TITLE            |  SUBTITLE                                   |    Type       #
+  #-------------+--------+-------------------------------------------------------+---------------#
+    "glm",     "Select a module",             "",                                              "group",
+      "clockface",     "ClockFace",       "",       "check",
+      "homeup",      "HomeUp",            "",              "check",
+      "keyscafe",     "KeyCafe",       "",  "check",
+	  "lockstar",     "LockStar",       "",  "check",
+      "multistar",  "MultiStar",  "",    "check",
+      "navstar",     "NavStar",       "",       "check",
+      "nicecatch",      "NiceCatch",            "",              "check",
+      "niceshot",     "NiceShot",       "",  "check",
+	  "oho+",     "One Hand Operation PLUS",       "",  "check",
+      "quickstar",  "QuickStar",  "",    "check",
+	  "soundassistant",     "SoundAssistant",       "",       "check",
+      "themepark",      "ThemePark",            "",              "check",
+      "wonderland",     "Wonderland",       "",  "check" 
+	);

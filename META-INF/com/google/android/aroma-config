@@ -1,0 +1,139 @@
+##################################################
+ini_set("force_colorspace", "rgba");
+ini_set("transition", "stack");
+ini_set("rom_name",             "Bobert's Universal Mods!");
+ini_set("rom_version",          "0");
+ini_set("rom_author",           "Bobert");
+ini_set("rom_device",           "Universal");
+ini_set("rom_date",             "alpha78");
+
+# Show splash screen
+splash(2000, "coolest_splash");
+fontresload( "0", "ttf/regular.ttf", "12" );
+fontresload( "1", "ttf/bold.ttf", "16" );
+theme("modern_blue");
+###############################################
+#ROM INFORMATION
+###############################################
+ini_set("text_next", "Next ");
+viewbox(
+    "UniversalMods!",
+
+    "<@center>Welcome to the installation wizard!</@>\n\n" +
+    "<@center>The install wizard is a user-friendly tool that will assist you step-by-step in installing the Feather Project onto your device. It simplifies the installation process by providing clear instructions and prompts, ensuring a smooth and hassle-free experience. By following the wizard, you'll be able to seamlessly set up the Feather Project and begin enjoying its features and functionalities on your device.</@>\n\n\n\n" +
+    "<@center>Tap <b>'next'</b> to continue.</@>",
+
+    "@feather_logo"
+);
+
+###############################################
+#CHANGELOG
+###############################################
+
+ini_set("text_next", "Next ");
+textbox(
+    "ROM changelogs",
+    "<b>Current version: S22 v5.1</b>",
+    "@lic",
+    resread("changelog.txt")
+);
+
+###############################################
+#LICENSE
+###############################################
+ini_set("text_next", "Next");
+agreebox(
+    "Terms & Agreement",
+    "<b>Pleas read the Terms of Use carefully!</b>",
+    "@lic",
+    resread("agreement.txt"),
+    "I Agree with these Terms and Conditions",
+    "<@center>You must accept the terms and conditions</@>"
+);
+
+###############################################
+#INSTALLATION TYPE
+###############################################
+ini_set("text_next", "Next");
+menubox(
+    "Installation",
+    "<b>Select your Install Method</b>",
+    "@install",
+    "configs.prop",
+
+    "Straight to install",          "dont know what to do? click here",    "@install_express",
+    "Modules 1-click",     "install modules as permantly system",    "@install_custom",
+    "System info",       "check sys info",       "@install_tune"
+);
+
+# Express install
+  if prop("configs.prop","selected") == "1" then
+    include("install_comingsoon.edify");
+  endif;
+
+  # Custom install
+  if prop("configs.prop","selected") == "2" then
+    include("install_oneui.edify");
+  endif;
+  
+  # Tuner install
+  if prop("configs.prop","selected") == "3" then
+    include("install_oneui.edify");
+  endif;
+
+###############################################
+#COMPATIBILITY CHECK
+###############################################
+pleasewait("Checking Compatibility...");
+restotmp("tools/busybox", "busybox");
+
+setvar(
+    "resexec_retstatus",
+    resexec("tools/compatibility_check.sh")
+);
+if(getvar("resexec_retstatus")!=1) then
+    ini_set("text_next", "Exit");
+endif;
+textbox(
+    "",
+    "<b>Compatibility Check: </b>\n",
+    "@compat",
+    "\n\n"+
+    getvar("exec_buffer")+
+    "\n\n"+
+
+    if(getvar("resexec_retstatus")==1) then
+        "<b><#00ff00>   DEVICE COMPATIBLE</#>"+
+        "\n   Press Next to continue..."
+    else
+        "<b><#ff0000>   DEVICE INCOMPATIBLE</#>\n"+
+        "<b><#ff0000>            OR        </#>\n"+
+        "<b><#ff0000>   UNSUPPORTED RECOVERY</#>"
+    endif;
+);
+if(getvar("resexec_retstatus")!=1) then
+    if
+	  confirm(
+		  "Exit",
+		  "Are you sure want to exit the Installer?",
+		  "@alert"
+	  )=="yes"
+	then
+	  exit("");
+	endif;
+    back("2");
+endif;
+
+###############################################
+#INSTALL
+###############################################
+ini_set("text_next", "Exit");
+setvar("retstatus",
+  install(
+      " ",
+      "<b>Flashing the rom.</b>\n"+
+      "<b>Please wait...</b>",
+      "@installer",
+      "Installation finished!"
+  )
+);

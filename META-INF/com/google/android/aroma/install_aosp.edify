@@ -1,0 +1,8 @@
+viewbox(
+    "Express installation",
+    "<@center>Would you like to continue this installation type?</@>\n\n" +
+    "<@center>This installation type will install your system right away with recommended config</@>\n\n\n\n" +
+    "<@center>Tap <b>'install'</b> to start install.</@>",
+
+    "@install_express"
+);

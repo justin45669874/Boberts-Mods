@@ -1,0 +1,565 @@
+# Dedicated to the all mighty Bandi Chod
+ui_print("===================================");
+ui_print("  ROM    : FEATHER PROJECT         ");
+ui_print("  OS     : OneUI 5.1 | Android 13  ");
+ui_print("  Version : S22_v6.0.1             ");
+ui_print("  Security: July 2023              ");
+ui_print("  KERNEL  : Eureka 13.0            ");
+ui_print("  DTB    : 5, Stable v2            ");
+ui_print("     -> Big cores: 520 - 2080      ");
+ui_print("     -> Little cores: 546 - 1690   ");
+ui_print("     -> GPU Freq: 343 - 1300       ");
+ui_print("  by @RiskyEagle                   ");
+ui_print("===================================");
+set_progress(0.10);
+##################################################
+package_extract_dir("META-INF/scripts/bin", "/tmp/");
+set_metadata_recursive("/tmp", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0777);
+##################################################
+#MOUNTS
+##################################################
+ui_print("@>Mount partition...");
+ifelse(is_mounted("/system_root"), unmount("/system_root"));
+ifelse(is_mounted("/vendor"), unmount("/vendor"));
+ifelse(is_mounted("/product"), unmount("/product"));
+##################################################
+#RESIZE
+##################################################
+set_progress(0.80);
+run_program("/tmp/busybox", "sleep", "1");
+run_program("/tmp/busybox", "sh", "/tmp/system-resize.sh");
+run_program("/tmp/busybox", "mount", "-t", "auto", "/system_root");
+run_program("/tmp/busybox", "mount", "-t", "auto", "/vendor");
+run_program("/tmp/busybox", "mount", "-t", "auto", "/product");
+##################################################
+#DEVICE
+##################################################
+#Common extract
+package_extract_dir("device/"+file_getprop("/tmp/aroma/compatible.prop", "device_id_alt")+"/firmware", "/vendor/firmware");
+package_extract_dir("device/"+file_getprop("/tmp/aroma/compatible.prop", "device_id_alt")+"/lib/", "/vendor/lib/");
+package_extract_dir("device/"+file_getprop("/tmp/aroma/compatible.prop", "device_id_alt")+"/lib64/", "/vendor/lib64/");
+package_extract_dir("device/"+file_getprop("/tmp/aroma/compatible.prop", "device_id_alt")+"/tee/", "/vendor/tee/");
+package_extract_file("device/"+file_getprop("/tmp/aroma/compatible.prop", "device_id_alt")+"/camera-feature.xml", "/system_root/system/cameradata/camera-feature.xml");
+package_extract_file("device/"+file_getprop("/tmp/aroma/compatible.prop", "device_id_alt")+"/overlay/framework-res__auto_generated_rro_vendor.apk", "/vendor/overlay/framework-res__auto_generated_rro_vendor.apk");
+
+if file_getprop("/tmp/aroma/compatible.prop", "device_id") == "A105" then
+    ui_print("@>Detected Device: Galaxy A10");
+    delete_recursive("/vendor/etc/init/android.hardware.usb@1.3-service.coral.rc");
+    delete_recursive("/vendor/etc/vintf/manifest/android.hardware.usb@1.3-service.coral.xml");
+    delete_recursive("/vendor/etc/init/vendor.samsung.hardware.biometrics.fingerprint@3.0-service.rc");
+    delete_recursive("/vendor/etc/vintf/vendor.samsung.hardware.biometrics.fingerprint@3.0-service.xml");
+    delete_recursive("/vendor/etc/permissions/android.hardware.fingerprint.xml");
+    delete_recursive("/vendor/etc/permissions/android.hardware.sensor.light.xml");
+    delete_recursive("/vendor/firmware/setfile_4ha_front.bin");
+    delete_recursive("/vendor/firmware/setfile_imx258.bin");
+    delete_recursive("/vendor/firmware/setfile_sr556.bin");
+    package_extract_file("device/a10/hal/android.hardware.usb@1.0-service.a10.rc", "/vendor/etc/init/android.hardware.usb@1.0-service.a10.rc");
+    package_extract_file("device/a10/hal/android.hardware.usb@1.0-service.a10.xml", "/vendor/etc/vintf/manifest/android.hardware.usb@1.0-service.a10.xml");
+    set_metadata_recursive("/vendor/etc/vintf/manifest/android.hardware.usb@1.0-service.a10.xml", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "selabel", "u:object_r:vendor_configs_file:s0");
+    set_metadata_recursive("/vendor/etc/init/android.hardware.usb@1.0-service.a10.rc", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "selabel", "u:object_r:vendor_configs_file:s0");
+endif;
+if file_getprop("/tmp/aroma/compatible.prop", "device_id") == "A205" then
+    ui_print("@>Detected Device: Galaxy A20");
+    delete_recursive("/vendor/etc/permissions/android.hardware.sensor.light.xml");
+    run_program("/tmp/busybox", "sed", "-i", "s/powerkey/rear/g", "/system_root/system/etc/floating_feature.xml");
+endif;
+if file_getprop("/tmp/aroma/compatible.prop", "device_id") == "A202" then
+    ui_print("@>Detected Device: Galaxy A20e");
+    delete_recursive("/vendor/firmware/setfile_imx258.bin");
+    delete_recursive("/vendor/etc/permissions/android.hardware.sensor.light.xml");
+    run_program("/tmp/busybox", "sed", "-i", "s/powerkey/rear/g", "/system_root/system/etc/floating_feature.xml");
+endif;
+if file_getprop("/tmp/aroma/compatible.prop", "device_id") == "A305" then
+    ui_print("@>Detected Device: Galaxy A30");
+    package_extract_file("device/a30/hal/remosaic_daemon.rc", "/vendor/etc/init/remosaic_daemon.rc");
+    set_metadata("/vendor/etc/init/remosaic_daemon.rc", "uid", 0, "gid", 0, "fmode", 0644, "selabel", "u:object_r:vendor_configs_file:s0");
+    run_program("/tmp/busybox", "sed", "-i", "s/,notaptoshow//g", "/system_root/system/etc/floating_feature.xml");
+    run_program("/tmp/busybox", "sed", "-i", "s/ro.sf.lcd_density=280/ro.sf.lcd_density=420/g", "/vendor/build.prop");
+endif;
+if file_getprop("/tmp/aroma/compatible.prop", "device_id") == "A307" then
+    ui_print("@>Detected Device: Galaxy A30s");
+    package_extract_dir("device/a30s/etc/", "/vendor/etc/");
+    package_extract_dir("device/a30s/app/BiometricSetting/", "/system_root/system/priv-app/BiometricSetting/");
+    run_program("/tmp/busybox", "sed", "-i", "s/capacitive_powerkey_phone/optical/g", "/system_root/system/etc/floating_feature.xml");
+endif;
+if file_getprop("/tmp/aroma/compatible.prop", "device_id") == "A405" then
+    ui_print("@>Detected Device: Galaxy A40");
+    run_program("/tmp/busybox", "sed", "-i", "s/ro.sf.lcd_density=280/ro.sf.lcd_density=420/g", "/vendor/build.prop");
+endif;
+
+#Permissions
+set_metadata_recursive("/vendor/tee/", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "selabel", "u:object_r:tee_file:s0");
+set_metadata_recursive("/vendor/etc/wifi/", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "selabel", "u:object_r:vendor_configs_file:s0");
+set_metadata_recursive("/vendor/firmware", "uid", 0, "gid", 0, "dmode", 0755, "fmode", 0644, "selabel", "u:object_r:vendor_fw_file:s0");
+
+##################################################
+#CSC
+##################################################
+if file_getprop("/tmp/aroma/csc.prop", "selected") == "1" then
+    ui_print("@>Installing CSC OLE...");
+    package_extract_dir("csc/ole/prism/etc", "/system_root/prism/etc");
+endif;
+if file_getprop("/tmp/aroma/csc.prop", "selected") == "2" then
+    ui_print("@>Installing CSC ODM...");
+    package_extract_dir("csc/odm/prism/etc", "/system_root/prism/etc");
+endif;
+if file_getprop("/tmp/aroma/csc.prop", "selected") == "3" then
+    ui_print("@>Installing CSC OLM...");
+    package_extract_dir("csc/olm/prism/etc", "/system_root/prism/etc");
+endif;
+if file_getprop("/tmp/aroma/csc.prop", "selected") == "4" then
+    ui_print("@>Installing CSC OWO...");
+    package_extract_dir("csc/owo/prism/etc", "/system_root/prism/etc");
+endif;
+if file_getprop("/tmp/aroma/csc.prop", "selected") == "5" then
+    ui_print("@>Installing CSC OJM...");
+    package_extract_dir("csc/ojm/prism/etc", "/system_root/prism/etc");
+endif;
+if file_getprop("/tmp/aroma/csc.prop", "selected") == "6" then
+    ui_print("@>Installing CSC OXM...");
+    package_extract_dir("csc/oxm/prism/etc", "/system_root/prism/etc");
+endif;
+if file_getprop("/tmp/aroma/csc.prop", "selected") == "7" then
+    ui_print(" Skipping CSC ...");
+endif;
+##################################################
+#MODS
+##################################################
+#-- Sound
+if file_getprop("/tmp/aroma/mods.prop","sound") == "1" then
+  ui_print("@>Installing MONO effect...");
+  package_extract_file("mods/single/mixer_paths.xml", "/vendor/etc/mixer_paths.xml");
+  package_extract_file("mods/single/mixer_gains.xml", "/vendor/etc/mixer_gains.xml");
+endif;
+if file_getprop("/tmp/aroma/mods.prop","sound") == "2" then
+  ui_print("@>Installing Stereo effect...");
+  package_extract_file("mods/dual/mixer_paths.xml", "/vendor/etc/mixer_paths.xml");
+  package_extract_file("mods/dual/mixer_gains.xml", "/vendor/etc/mixer_gains.xml");
+endif;
+
+#-- Throttling
+if file_getprop("/tmp/aroma/mods.prop","throttle") == "1" then
+  ui_print("@>Throttling little to 1352");
+  package_extract_file("mods/throttle/fp_throttle.rc", "/vendor/etc/init/fp_throttle.rc");
+  set_metadata_recursive("/vendor/etc/init/fp_throttle.rc", "uid", 0, "gid", 0, "dmode", 0644, "fmode", 0644);
+endif;
+if file_getprop("/tmp/aroma/mods.prop","throttle") == "2" then
+  ui_print("@>Removing Throttle...");
+  delete_recursive("/vendor/etc/init/fp_throttle.rc");
+endif;
+
+#-- LMK
+if file_getprop("/tmp/aroma/mods.prop","lmk") == "1" then
+  ui_print("@>Installing Light LMK...");
+  run_program("/tmp/busybox","sh","/tmp/tolightlmk.sh");
+endif;
+if file_getprop("/tmp/aroma/mods.prop","lmk") == "2" then
+  ui_print("@>Installing Standard LMK...");
+  run_program("/tmp/busybox","sh","/tmp/tostandardlmk.sh");
+endif;
+
+#-- UI
+if file_getprop("/tmp/aroma/mods.prop","blur") == "1" then
+  ui_print("@>Live blur effect enabling...");
+  run_program("/tmp/busybox", "sed", "-i", "s/FLAG>FALSE/FLAG>TRUE/g", "/system_root/system/etc/floating_feature.xml");
+endif;
+if file_getprop("/tmp/aroma/mods.prop","blur") == "2" then
+  ui_print("@>Static blur effect enabling...");
+  run_program("/tmp/busybox", "sed", "-i", "s/FLAG>TRUE/FLAG>FALSE/g", "/system_root/system/etc/floating_feature.xml");
+endif;
+
+# Knox
+if file_getprop("/tmp/aroma/mods.prop","knox") == "1" then
+  ui_print("@>Removing KNOX app support...");
+  delete_recursive("/system_root/system/priv-app/KLMSAgent");
+  delete_recursive("/system_root/system/priv-app/knoxanalyticsagent");
+  delete_recursive("/system_root/system/priv-app/KnoxCore");
+  delete_recursive("/system_root/system/priv-app/KnoxPushManager");
+  delete_recursive("/system_root/system/priv-app/knoxvpnproxyhandler");
+  delete_recursive("/system_root/system/priv-app/KPECore");
+endif;
+
+# NFC
+if file_getprop("/tmp/aroma/mods.prop", "nfc") == "1" then
+    ui_print("@>Removing NFC...");
+    delete_recursive("/system_root/system/app/NfcNci");
+endif;
+
+# User
+if file_getprop("/tmp/aroma/mods.prop","brightness") == "1" then
+  ui_print("@>Removing extended brightness...");
+  delete_recursive("/vendor/etc/init/fp_aospbrightness.rc");
+endif;
+
+# Bootani
+if file_getprop("/tmp/aroma/mods.prop","bootani") == "1" then
+  ui_print("@>AOSP Bootanimation...");
+  package_extract_file("mods/bootani/bootanimation", "/system_root/system/bin/bootanimation");
+  set_metadata("/system_root/system/bin/bootanimation", "uid", 0, "gid", 2000, "fmode", 0755, "selabel", "u:object_r:bootanim_exec:s0");
+  package_extract_file("mods/bootani/libbootanimation.so", "/system_root/system/lib64/libbootanimation.so");
+  set_metadata("/system_root/system/lib64/libbootanimation.so", "uid", 0, "gid", 0, "fmode", 0644, "selabel", "u:object_r:system_lib_file:s0");
+  package_extract_file("mods/bootani/bootanimation.zip", "/system_root/system/media/bootanimation.zip");
+  set_metadata("/system_root/system/media/bootanimation.zip", "uid", 0, "gid", 0, "fmode", 0644, "selabel", "u:object_r:system_file:s0");
+endif;
+##################################################
+#DEBLOAT
+##################################################
+if file_getprop("/tmp/aroma/debloat.prop", "selected") == "2" then
+    ui_print("@>Debloating with Light Mode...");
+    package_extract_file("debloat/easy", "tmp/dblist");
+    run_program("/tmp/busybox","sh","/tmp/nukeengine.sh");
+endif;
+if file_getprop("/tmp/aroma/debloat.prop", "selected") == "3" then
+    ui_print("@>Debloating with Moderate Mode...");
+    package_extract_file("debloat/mid", "tmp/dblist");
+    run_program("/tmp/busybox","sh","/tmp/nukeengine.sh");
+endif;
+if file_getprop("/tmp/aroma/debloat.prop", "selected") == "4" then
+    ui_print("@>Debloating with Heavy Mode...");
+    package_extract_file("debloat/full", "tmp/dblist");
+    run_program("/tmp/busybox","sh","/tmp/nukeengine.sh");
+endif;
+if file_getprop("/tmp/aroma/debloat.prop", "selected") == "5" then
+    ui_print("@>Debloating with Lain's List...");
+    package_extract_file("debloat/lain", "tmp/dblist");
+    run_program("/tmp/busybox","sh","/tmp/nukeengine.sh");
+endif;
+if file_getprop("/tmp/aroma/debloat.prop", "selected") == "6" then
+    ui_print("@>Debloating with Sanchet's List...");
+    package_extract_file("debloat/sanchet", "tmp/dblist");
+    run_program("/tmp/busybox","sh","/tmp/nukeengine.sh");
+endif;
+##################################################
+#CUSDEBLOAT
+##################################################
+ui_print("@==Checking for list of custom debloats...==");
+# QuickShare
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.1.1") == "1"
+    then
+      ui_print("@>Debloating QuickShare");
+      delete_recursive("/system_root/system/priv-app/ShareLive/ShareLive.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.1.2") == "1"
+    then
+	  ui_print("@  Nuking agent");
+      delete_recursive("/system_root/system/app/AllShareAware/AllShareAware.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.1.3") == "1"
+    then
+      ui_print("@  Nuking service");
+      delete_recursive("/system_root/system/app/MdxKitService/MdxKitService.apk");
+    endif;
+# AR
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.2.1") == "1"
+    then
+      ui_print("@>Debloating AR core");
+      delete_recursive("/system_root/system/app/ARCore/ARCore.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.2.2") == "1"
+    then
+	  ui_print("@>Debloating AR Zone");
+      delete_recursive("/system_root/system/app/ARZone/ARZone.apk");
+    endif;
+# Bixby
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.3.1") == "1"
+    then
+      ui_print("@>Debloating Bixby");
+      delete_recursive("/system_root/system/priv-app/Bixby/Bixby.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.3.2") == "1"
+    then
+	  ui_print("@  Nuking Voice Wake-up Service");
+      delete_recursive("/system_root/system/app/BixbyWakeup/BixbyWakeup.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.3.3") == "1"
+    then
+      ui_print("@  Nuking a plugin");
+      delete_recursive("/system_root/system/priv-app/SettingsBixby/SettingsBixby.apk");
+    endif;
+# EdgePanel
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.4.1") == "1"
+    then
+      ui_print("@>Debloating EdgePanel");
+      delete_recursive("/system_root/system/priv-app/CocktailBarService_v3.2/CocktailBarService_v3.2.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.4.2") == "1"
+    then
+	  ui_print("@  Nuking Apps panel");
+      delete_recursive("/system_root/system/priv-app/AppsEdgePanel_v3.2/AppsEdgePanel_v3.2.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.4.3") == "1"
+    then
+      ui_print("@  Nuking Tools panel");
+      delete_recursive("/system_root/system/app/CocktailQuickTool/CocktailQuickTool.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.4.4") == "1"
+    then
+      ui_print("@  Nuking Clipboard panel");
+      delete_recursive("/system_root/system/app/ClipboardEdge/ClipboardEdge.apk");
+    endif;
+# SamsungExperience
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.1") == "1"
+    then
+      ui_print("@>Debloating Samsung Account");
+      delete_recursive("/system_root/system/priv-app/SamsungAccount/SamsungAccount.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.2") == "1"
+    then
+	  ui_print("@>Debloating Samsung Experience Service");
+      delete_recursive("/system_root/system/priv-app/SamsungExperienceService/SamsungExperienceService.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.3") == "1"
+    then
+      ui_print("@>Debloating Multi Control");
+      delete_recursive("/system_root/system/priv-app/MultiControlVP4/MultiControlVP4.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.4") == "1"
+    then
+      ui_print("@>Debloating Beacon");
+      delete_recursive("/system_root/system/priv-app/BeaconManager/BeaconManager.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.5") == "1"
+    then
+      ui_print("@>Debloating Nearby setup");
+      delete_recursive("/system_root/system/priv-app/EasySetup/EasySetup.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.6") == "1"
+    then
+	  ui_print("@>Debloating Device sync");
+      delete_recursive("/system_root/system/priv-app/MCFDeviceSync/MCFDeviceSync.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.7") == "1"
+    then
+      ui_print("@>Debloating Call & text on other devices");
+      delete_recursive("/system_root/system/app/MdecService/MdecService.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.8") == "1"
+    then
+      ui_print("@>Debloating Samsung Cloud");
+      delete_recursive("/system_root/system/priv-app/SamsungCloudClient/SamsungCloudClient.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.9") == "1"
+    then
+      ui_print("@>Debloating EcoSystem sync aka. MultiConnectivity");
+      delete_recursive("/system_root/system/priv-app/SamsungMultiConnectivity/SamsungMultiConnectivity.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.10") == "1"
+    then
+	  ui_print("@>Debloating Smart Certified Project Manager");
+      delete_recursive("/system_root/system/priv-app/SCPMAgent/SCPMAgent.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.11") == "1"
+    then
+      ui_print("@>Debloating SmartThingsKit");
+      delete_recursive("/system_root/system/priv-app/SmartThingsKit/SmartThingsKit.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.5.12") == "1"
+    then
+      ui_print("@>Debloating GalaxyStore");
+      delete_recursive("/system_root/system/priv-app/GalaxyApps_OPEN/GalaxyApps_OPEN.apk");
+    endif;
+# DeX
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.6.1") == "1"
+    then
+      ui_print("@>Debloating DeX");
+      delete_recursive("/system_root/system/priv-app/DesktopModeUiService/DesktopModeUiService.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.6.2") == "1"
+    then
+	  ui_print("@  Nuking DeX SysUI");
+      delete_recursive("/system_root/system/priv-app/DesktopSystemUI/DesktopSystemUI.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.6.3") == "1"
+    then
+      ui_print("@  Nuking DeX PC bridge");
+      delete_recursive("/system_root/system/priv-app/DeXonPC/DeXonPC.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.6.4") == "1"
+    then
+      ui_print("@  Nuking DeX home");
+      delete_recursive("/system_root/system/priv-app/KnoxDesktopLauncher/KnoxDesktopLauncher.apk");
+    endif;
+# Unlisted
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.1") == "1"
+    then
+      ui_print("@>Debloating DualMessenger");
+      delete_recursive("/system_root/system/app/DAAgent/DAAgent.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.2") == "1"
+    then
+	  ui_print("@>Debloating Wearable Service");
+      delete_recursive("/system_root/system/app/GearManagerStub/GearManagerStub.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.3") == "1"
+    then
+      ui_print("@>Debloating Netflix");
+      delete_recursive("/system_root/system/app/Netflix_stub/Netflix_stub.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.4") == "1"
+    then
+      ui_print("@>Debloating SmartView");
+      delete_recursive("/system_root/system/app/SmartMirroring/SmartMirroring.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.5") == "1"
+    then
+      ui_print("@>Debloating SmartSwicth Agent");
+      delete_recursive("/system_root/system/app/SmartSwitchAgent/SmartSwitchAgent.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.6") == "1"
+    then
+	  ui_print("@>Debloating Link to Windows service");
+      delete_recursive("/system_root/system/priv-app/LinkToWindowsService/LinkToWindowsService.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.7") == "1"
+    then
+      ui_print("@>Debloating Device and Media control");
+      delete_recursive("/system_root/system/priv-app/Quickboard/Quickboard.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.8") == "1"
+    then
+      ui_print("@>Debloating Routines");
+      delete_recursive("/system_root/system/priv-app/Routines/Routines.apk");
+    endif;
+	if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.9") == "1"
+    then
+      ui_print("@>Debloating Magnifier");
+      delete_recursive("/system_root/system/priv-app/SamsungMagnifier3/SamsungMagnifier3.apk");
+    endif;
+    if
+      file_getprop("/tmp/aroma/diploma.prop","item.7.10") == "1"
+    then
+	  ui_print("@>Debloating SmartSuggestions");
+      delete_recursive("/system_root/system/priv-app/SamsungSmartSuggestions/SamsungSmartSuggestions.apk");
+    endif;
+##################################################
+#Modules
+##################################################
+ui_print("@==Checking for list of GL modules...==");
+# QuickShare
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.1") == "1"
+    then
+      ui_print("@>Installing ClockFace");
+      package_extract_file("module-1ui/clockface", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.2") == "1"
+    then
+	  ui_print("@>Installing HomeUp");
+      package_extract_file("module-1ui/homeup", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.3") == "1"
+    then
+      ui_print("@>Installing KeyCafe");
+      package_extract_file("module-1ui/keyscafe", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.4") == "1"
+    then
+      ui_print("@>Installing Lockstar");
+      package_extract_file("module-1ui/lockstar", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.5") == "1"
+    then
+	  ui_print("@>Installing MultiStar");
+      package_extract_file("module-1ui/multistar", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.6") == "1"
+    then
+      ui_print("@>Installing NavStar");
+      package_extract_file("module-1ui/navstar", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.7") == "1"
+    then
+	  ui_print("@>Installing NiceCatch");
+      package_extract_file("module-1ui/nicecatch", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.8") == "1"
+    then
+      ui_print("@>Installing NiceShot");
+      package_extract_file("module-1ui/niceshot", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.9") == "1"
+    then
+      ui_print("@>Installing One Hand Operation+");
+      package_extract_file("module-1ui/oho+", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.10") == "1"
+    then
+	  ui_print("@>Installing QuickStar");
+      package_extract_file("module-1ui/quickstar", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.11") == "1"
+    then
+      ui_print("@>Installing SoundAssistant");
+      package_extract_file("module-1ui/soundassistant", "/system/app");
+    endif;
+	if
+      file_getprop("/tmp/aroma/module.prop","item.1.12") == "1"
+    then
+      ui_print("@>Installing Theme Park");
+      package_extract_file("module-1ui/themepark", "/system/app");
+    endif;
+    if
+      file_getprop("/tmp/aroma/module.prop","item.1.13") == "1"
+    then
+      ui_print("@>Installing Wonderland");
+      package_extract_file("module-1ui/wonderland", "/system/app");
+    endif;
+##################################################
+set_progress(0.99);
+##################################################
+ui_print("--[  Unmount partition  ]--");
+ifelse(is_mounted("/system"), unmount("/system"));
+ifelse(is_mounted("/vendor"), unmount("/vendor"));
+ifelse(is_mounted("/product"), unmount("/product"));
+##################################################
+ui_print(" ");
+ui_print("SUCCESSFULLY COMPLETED!");
+ui_print(" ");
+set_progress(1.00);

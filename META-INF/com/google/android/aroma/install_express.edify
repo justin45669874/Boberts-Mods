@@ -1,0 +1,16 @@
+###############################################
+#EXPRESS INSTALLATION TYPE
+###############################################
+
+writetmpfile(
+  "mods.prop",
+  "selected.0=0\n"
+);
+writetmpfile(
+  "debloat.prop",
+  "selected.0=0\n"
+);
+writetmpfile(
+  "kernel.prop",
+  "selected=1\n"
+);
