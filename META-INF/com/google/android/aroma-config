@@ -68,18 +68,73 @@ menubox(
 
 # Express install
   if prop("configs.prop","selected") == "1" then
-    include("install_comingsoon.edify");
+    include("install_express.edify");
   endif;
 
   # Custom install
   if prop("configs.prop","selected") == "2" then
-    include("install_oneui.edify");
+    include("install_modulesm.edify");
   endif;
   
   # Tuner install
   if prop("configs.prop","selected") == "3" then
-    include("install_oneui.edify");
-  endif;
+  # Change the Next button text to "empty"
+    ini_set("text_next", " ");
+    ini_set("icon_next", "@empty");
+  #-- Show Please Wait
+  pleasewait("Getting System Informations...");
+
+  #-- Fetch System Information
+  setvar(
+    #-- Variable Name
+      "sysinfo",
+    
+    #-- Variable Value in GUI
+      "<@center><b>Your Device's Informations</b></@>\n\n"+
+      
+      "Model\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.model")+"</#></b>\n"+
+      "Name\t\t\t: <b><#selectbg_g>"+sysprop("ro.product.name")+"</#></b>\n"+
+      "Device Name\t\t: <b><#selectbg_g>"+sysprop("ro.product.device")+"</#></b>\n"+
+      "Manufacturer\t\t: <b><#selectbg_g>"+sysprop("ro.product.manufacturer")+"</#></b>\n\n"+
+      
+      "CPU Arch\t\t: <b><#selectbg_g>"+sysprop("ro.product.cpu.abi")+"</#></b>\n\n"+
+      
+      "System Size\t: <b><#selectbg_g>"+getdisksize("/system_root","m")+" MB</#></b>\n"+
+        "\tFree\t\t: <b><#selectbg_g>"+getdiskfree("/system_root","m")+" MB</#></b>\n\n"+
+      "Data Size\t\t: <b><#selectbg_g>"+getdisksize("/data","m")+" MB</#></b>\n"+
+        "\tFree\t\t: <b><#selectbg_g>"+getdiskfree("/data","m")+" MB</#></b>\n\n"+
+      "Vendor Size\t: <b><#selectbg_g>"+getdisksize("/vendor","m")+" MB</#></b>\n"+
+        "\tFree\t\t: <b><#selectbg_g>"+getdiskfree("/vendor","m")+" MB</#></b>\n\n"+
+      "Product Size\t: <b><#selectbg_g>"+getdisksize("/product","m")+" MB</#></b>\n"+
+        "\tFree\t\t: <b><#selectbg_g>"+getdiskfree("/product","m")+" MB</#></b>\n\n"+
+      "Cache Size\t: <b><#selectbg_g>"+getdisksize("/cache","m")+" MB</#></b>\n"+
+        "\tFree\t\t: <b><#selectbg_g>"+getdiskfree("/cache","m")+" MB</#></b>\n\n"+
+      "OMR Size\t\t: <b><#selectbg_g>"+getdisksize("/omr","m")+" MB</#></b>\n"+
+        "\tFree\t\t: <b><#selectbg_g>"+getdiskfree("/omr","m")+" MB</#></b>\n\n"+
+      "SD card Size\t: <b><#selectbg_g>"+getdisksize("/sdcard1","m")+" MB</#></b>\n"+
+        "\tFree\t\t: <b><#selectbg_g>"+getdiskfree("/sdcard1","m")+" MB</#></b>\n\n"+
+
+      ""
+  );
+  
+  #-- Show Textbox
+  textbox(
+    #-- Title
+      "DEVICE SPECS \t\t\t\t\t\t",
+    
+    #-- Subtitle
+      "Current system information may not be supported in all devices.",
+    
+    #-- Icon
+      "@info",
+    
+    #-- Text
+      getvar("sysinfo")
+  );
+   # Change the "none" button text back to "Next"
+     ini_set("text_next", "Next");
+     ini_set("icon_next", "@next");
+endif;
 
 ###############################################
 #COMPATIBILITY CHECK
