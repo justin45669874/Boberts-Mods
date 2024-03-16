@@ -1,3 +1,9 @@
+## BIG NOTE
+# Deprecated.
+Why?
+It's much faster than I thought. I was gonna push some more mods, but my A30 is death, and I got new phone.
+
+
 # Boberts-Mods (NOT OPEN BECAUSE IN ALPHA)
 An AROMA INSTALLER based on FeatherProject installer and added tons of mods for Exy7885 Family and for universal
 
